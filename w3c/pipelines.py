@@ -17,6 +17,9 @@ class W3CPipeline(object):
         
         if(isinstance(item, TypeItem)):
             self.storeInTypeTable(item)          
+        
+        if(isinstance(item, LanguageItem)):
+            self.storeInLanguageItemTable(item)          
         return item
     
     
@@ -32,6 +35,21 @@ class W3CPipeline(object):
         ))
         self.con.commit() 
         
+    def storeInLanguageItemTable(self, item):
+        self.cur.execute("INSERT INTO language(\
+            code,\
+            type, \
+            name,\
+            link\
+            ) \
+        VALUES( ?, ?,?,? )", \
+        ( \
+            item.get('code', ''), 
+            item.get('type', ''),
+            item.get('name', ''),
+            item.get('link', '')
+        ))
+        self.con.commit() 
     def setupDBCon(self):
         self.con = lite.connect('w3c.db')
         self.cur = self.con.cursor()
