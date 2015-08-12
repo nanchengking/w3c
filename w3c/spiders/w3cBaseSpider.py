@@ -18,12 +18,18 @@ class w3cSpider(scrapy.Spider):
     
     def parse(self, response):
         self.typeCode=0
-        self.wanted_num=1
-        for sel in response.xpath("//section[@class='container container-page']/div[@class='content']"):
-            w3cItem=TypeItem()
-            w3cItem['name']=sel.xpath('div/h2/text()').extract()
-            w3cItem['type']=self.typeCode;
+        self.wanted_num=100
+        for sel in response.xpath("//section[@class='container container-page']/div[@class='content']/div"):
+            typeItem=TypeItem()
+            typeItem['name']=sel.xpath('h2/text()').extract()[0]
+            typeItem['type']=self.typeCode;
             self.typeCode+=1
-            print "===name is",w3cItem['name']
-            yield w3cItem
+            print "===name is",typeItem['name'],type(typeItem['name']),'===numb:',self.typeCode
+            
+            #request = scrapy.Request(typeItem['MianPageUrl'], callback=self.parseMovieDetails)
+            #request.meta['item'] = item
+            #yield request
+            if(self.typeCode>=self.wanted_num):
+                return
+            yield typeItem
         print "==finish!!!=="
