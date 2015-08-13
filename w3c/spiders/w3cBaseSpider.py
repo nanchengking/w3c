@@ -19,7 +19,7 @@ class w3cSpider(scrapy.Spider):
     def parse(self, response):
         self.type=0
         self.code=0
-        self.wanted_num=100
+        self.wanted_num=2
         for sel in response.xpath("//section[@class='container container-page']/div[@class='content']/div[@class]"):
             typeItem=TypeItem()
             typeItem['name']=sel.xpath('h2/text()').extract()[0]
@@ -33,12 +33,29 @@ class w3cSpider(scrapy.Spider):
                 languageItem['type']=self.type
                 languageItem['link']='http://www.runoob.com/'+mSel.xpath('@href').extract()[0]
                 languageItem['name']=mSel.xpath('h4/text()').extract()[0]
-                yield languageItem
+                request = scrapy.Request(languageItem['link'], callback=self.parseLanguageItem)
+                request.meta['item'] = languageItem
+                yield request
             print "===name is",typeItem['name'],type(typeItem['name']),'===numb:',self.type 
             #request = scrapy.Request(typeItem['MianPageUrl'], callback=self.parseMovieDetails)
             #request.meta['item'] = item
             #yield request
             if(self.type>=self.wanted_num):
                 return
-            yield typeItem
+            yield typeItem    
         print "==finish!!!=="
+    def parseLanguageItem(self,response):
+        item = response.meta['item']
+        sel = response.xpath("//div[@id='main']")
+        w3cItem=W3CItem() 
+        i=item['code']
+        w3cItem['code']=item['code']
+        print '===code type is: ',type(w3cItem['code'])
+        w3cItem['link']=response.url
+        w3cItem['name']=sel.xpath("div[@id='content']/h1/text()").extract()+sel.xpath("div[@id='content']/h1/span/text()").extract()
+        w3cItem['nextLink']=sel.xpath("div[@class='chapter']/div[@class='next']/a[@href]/@href").extract()
+        w3cItem['prevLink']=sel.xpath("div[@class='chapter']/div[@class='prev']/a[@href]/@href").extract()
+        w3cItem['description']=sel.xpath("div[@id='content']").extract()
+        yield w3cItem 
+        yield item
+        
