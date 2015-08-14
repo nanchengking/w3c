@@ -57,8 +57,6 @@ class W3CPipeline(object):
         self.con.commit() 
         
     def storeInW3CTable(self,item):
-        print '----type()',type(item.get('code', 0)),item.get("code", 0)
-        j=item.get("code", 0)
         self.cur.execute("INSERT INTO w3c(\
             name,\
             link, \
@@ -74,7 +72,7 @@ class W3CPipeline(object):
             item.get('nextLink', ''),
             item.get('prevLink', ''),
             item.get('description', ''),
-            j
+            item.get('code', ''),
         ))
         self.con.commit() 
         
