@@ -6,6 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import sqlite3 as lite
 from w3c.items import W3CItem, LanguageItem,TypeItem
+from scrapy.item import Item
 
 class W3CPipeline(object):
     
@@ -17,6 +18,13 @@ class W3CPipeline(object):
         
         if(isinstance(item, TypeItem)):
             self.storeInTypeTable(item)          
+        
+        if(isinstance(item, LanguageItem)):
+            self.storeInLanguageItemTable(item)
+            
+        if(isinstance(item, W3CItem)):
+            self.storeInW3CTable(item)
+                      
         return item
     
     
@@ -27,8 +35,44 @@ class W3CPipeline(object):
             ) \
         VALUES( ?, ? )", \
         ( \
-            item.get('type', ''), 
+            item.get('type', 0), 
             item.get('name', '')
+        ))
+        self.con.commit() 
+        
+    def storeInLanguageItemTable(self, item):
+        self.cur.execute("INSERT INTO language(\
+            code,\
+            type, \
+            name,\
+            link\
+            ) \
+        VALUES( ?, ?,?,? )", \
+        ( \
+            item.get('code', 0), 
+            item.get('type', 0),
+            item.get('name', ''),
+            item.get('link', '')
+        ))
+        self.con.commit() 
+        
+    def storeInW3CTable(self,item):
+        self.cur.execute("INSERT INTO w3c(\
+            name,\
+            link, \
+            nextLink,\
+            prevLink,\
+            description,\
+            code\
+            ) \
+        VALUES(?,?,?,?,?,?)", \
+        ( \
+            item.get('name', ''), 
+            item.get('link', ''),
+            item.get('nextLink', ''),
+            item.get('prevLink', ''),
+            item.get('description', ''),
+            item.get('code', ''),
         ))
         self.con.commit() 
         
@@ -55,6 +99,8 @@ class W3CPipeline(object):
         self.cur.execute("CREATE TABLE IF NOT EXISTS w3c(id INTEGER PRIMARY KEY NOT NULL, \
             name TEXT, \
             link TEXT, \
+            code INTEGER NOT NULL,\
+            prevLink TEXT,\
             nextLink TEXT, \
             description TEXT\
             )")

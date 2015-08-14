@@ -11,6 +11,7 @@ class W3CItem(Item):
     code=Field()#对应Language的code
     link=Field()#这一页本身的连接
     nextLink=Field()#这一页的下一页连接
+    prevLink=Field()
     description=Field() #这一页的内容
 class LanguageItem(Item):
     code=Field()#每一种语言的唯一标识符
